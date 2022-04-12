@@ -14,7 +14,7 @@ soup = BeautifulSoup(response.text, 'html.parser')
 def get_page(pg_num):
     url = "https://ghatreh.filmgardi.com/_api/_v10/Contents/Structure/Row/NormalAuto/24030?limit=200page="
     if pg_num > 1:
-        url = url + str(pg_num)
+        url += str(pg_num)
     response = requests.get(url)
     json_data = json.loads(response.text)
     return json_data.get("body").get("result")
@@ -25,13 +25,15 @@ data = []
 # for page_num in range(1, pages+1):
 for page_num in range(1, 100):
     page = get_page(page_num)
-    for movie in page:
-    	data.append({
-    		"title": movie.get("title"),
-    		"poster": "https://ghatreh.filmgardi.com" + movie.get("poster")[0].get("url"),
-    		"link": "https://filmgardi.com/p" + movie.get("alias"),
-    		})
-
+    data.extend(
+        {
+            "title": movie.get("title"),
+            "poster": "https://ghatreh.filmgardi.com"
+            + movie.get("poster")[0].get("url"),
+            "link": "https://filmgardi.com/p" + movie.get("alias"),
+        }
+        for movie in page
+    )
 
 with open('data.txt', 'w', encoding='utf8') as outfile:
     json.dump(data, outfile, ensure_ascii=False)
